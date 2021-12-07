@@ -6,6 +6,21 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 
 class RoverSpec extends AnyFreeSpec with Matchers with EitherValues {
+  "rove" - {
+    "given valid inputs, return correct forward movement" in {
+      val result = rove(Grid(4,4), Coord(1,1), "N", "F")
+      result should matchPattern { case Right(RoverState(Coord(1,2), North)) => }
+    }
+    "given valid inputs, return correct forward movement off the gird" in {
+      val result = rove(Grid(4,4), Coord(4,4), "E", "F")
+      result should matchPattern { case Right(RoverState(Coord(1,4), East)) => }
+    }
+    "given an invalid direction input, return a Left" in {
+      val result = rove(Grid(4,4), Coord(1,1), "Z", "F")
+      result should matchPattern { case Left(Rover.invalidDirection) => }
+    }
+  }
+
   "validateGrid" - {
     "given a 4x4 grid, return a Right" in {
       validateGrid(Grid(4,4)) should matchPattern { case Right(Grid(4,4)) => }
