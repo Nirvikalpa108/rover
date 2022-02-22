@@ -20,13 +20,14 @@ object Rover {
   /**
    * Given the rover's direction and grid boundaries, determine it's new coordinates after moving forward.
    */
-  private def moveForward(rover: RoverState, g: Grid): Coord = {
-    val c = rover.coord
+  private def moveForward(rover: RoverState, grid: Grid): Coord = {
+    val coord = rover.coord
+    val bottomGrid = 1
     rover.direction match {
-      case North => if (c.y == g.y) Coord(c.x, 1) else Coord(c.x, c.y + 1)
-      case East => if (c.x == g.x) Coord(1, c.y) else Coord(c.x + 1, c.y)
-      case South => if (c.y == 1) Coord(c.x, g.y) else Coord(c.x, c.y - 1)
-      case West => if (c.x == 1) Coord(g.x, c.y) else Coord(c.x - 1, c.y)
+      case North => if (coord.y == grid.height) Coord(coord.x, bottomGrid) else Coord(coord.x, coord.y + 1)
+      case East => if (coord.x == grid.width) Coord(1, coord.y) else Coord(coord.x + 1, coord.y)
+      case South => if (coord.y == 1) Coord(coord.x, grid.height) else Coord(coord.x, coord.y - 1)
+      case West => if (coord.x == 1) Coord(grid.width, coord.y) else Coord(coord.x - 1, coord.y)
     }
   }
   private def rotateClockwise(d: Direction): Direction = d match {
@@ -41,8 +42,8 @@ object Rover {
     case South => East
     case West => South
   }
-  private[example] def validateGrid(grid: Grid): Either[String, Grid] = if (grid.x <= 0 || grid.y <= 0) Left(invalidGrid) else Right(grid)
-  private[example] def validateCoords(grid: Grid, coord: Coord): Either[String, Coord] = if (grid.x >= coord.x && grid.y >= coord.y) Right(coord) else Left(invalidCoords)
+  private[example] def validateGrid(grid: Grid): Either[String, Grid] = if (grid.width <= 0 || grid.height <= 0) Left(invalidGrid) else Right(grid)
+  private[example] def validateCoords(grid: Grid, coord: Coord): Either[String, Coord] = if (grid.width >= coord.x && grid.height >= coord.y) Right(coord) else Left(invalidCoords)
   private[example] def validateDirection(direction: String): Either[String, Direction] = direction match {
     case "N" => Right(North)
     case "E" => Right(East)
@@ -63,8 +64,16 @@ object Rover {
   val invalidCommand = "invalid command"
 }
 
+
+sealed trait Error {
+  def msg: String
+}
+case object InvalidGrid extends Error {
+  override def msg: String = "invalid grid"
+}
+
 case class RoverState(coord: Coord, direction: Direction)
-case class Grid(x: Int, y: Int)
+case class Grid(width: Int, height: Int)
 case class Coord(x: Int, y: Int)
 
 sealed trait Direction
